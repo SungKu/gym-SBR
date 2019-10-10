@@ -2,8 +2,8 @@
 
 # Assign the, Volume, Time length of each sequence, Influent,  Controller, etc to 'SBR_model'.
 
-from gym_SBR.env import buffer_tank2 as buffer_tank
-from gym_SBR.env import SBR_model_batchPID_fbPID as SBR
+from gym_SBR.envs import buffer_tank2 as buffer_tank
+from gym_SBR.envs import SBR_model_batchPID_fbPID as SBR
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.font_manager import FontProperties
