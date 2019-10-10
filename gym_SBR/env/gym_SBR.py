@@ -8,15 +8,15 @@ import gym
 from gym import spaces
 
 #influent generation
-import myenv.buffer_tank2 as buffer_tank
-import myenv.SBR_model_batchPID_fbPID as SBR
-import myenv.SBR_model_PID_off as SBR_PID_off
-import myenv.SBR_model_PID_on as SBR_PID_on
+import gym_SBR.env.buffer_tank2 as buffer_tank
+import gym_SBR.env.SBR_model_batchPID_fbPID as SBR
+import gym_SBR.env.SBR_model_PID_off as SBR_PID_off
+import gym_SBR.env.SBR_model_PID_on as SBR_PID_on
 
-from myenv.module_reward import sbr_reward
-from myenv.module_batch_PID import batch_PID
-from myenv.module_temperature import DO_set
-from myenv.module_batch_time import batch_time
+from gym_SBR.env.module_reward import sbr_reward
+from gym_SBR.env.module_batch_PID import batch_PID
+from gym_SBR.env.module_temperature import DO_set
+from gym_SBR.env.module_batch_time import batch_time
 
 # create a list for string global rewards and episodes
 global_rewards = []
