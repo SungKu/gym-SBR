@@ -1,6 +1,6 @@
 """Author: SKHEO, KHU"""
 
-import myenv.sub_phases_batchPID_fbPID as cycle
+import gym_SBR.env.sub_phases_batchPID_fbPID as cycle
 import numpy as np
 
 
