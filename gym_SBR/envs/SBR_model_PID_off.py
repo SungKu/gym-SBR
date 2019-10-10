@@ -1,6 +1,6 @@
 """Author: SKHEO, KHU"""
 
-from gym_SBR.env import sub_phases_PID_off as cycle
+from gym_SBR.envs import sub_phases_PID_off as cycle
 import numpy as np
 
 
