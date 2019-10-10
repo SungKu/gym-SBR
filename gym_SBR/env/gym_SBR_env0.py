@@ -8,10 +8,10 @@ import gym
 from gym import spaces
 
 #influent generation
-import gym_SBR.env.buffer_tank2 as buffer_tank
-import gym_SBR.env.SBR_model_batchPID_fbPID as SBR
-import gym_SBR.env.SBR_model_PID_off as SBR_PID_off
-import gym_SBR.env.SBR_model_PID_on as SBR_PID_on
+from gym_SBR.env import buffer_tank2 as buffer_tank
+from gym_SBR.env import SBR_model_batchPID_fbPID as SBR
+from gym_SBR.env import SBR_model_PID_off as SBR_PID_off
+from gym_SBR.env import SBR_model_PID_on as SBR_PID_on
 
 from gym_SBR.env.module_reward import sbr_reward
 from gym_SBR.env.module_batch_PID import batch_PID
@@ -135,12 +135,12 @@ kla_memory_8_1 = kla_memory8
 
 
 
-class gym_SBR(gym.Env):
+class SbrEnv(gym.Env):
     """custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
     
     def __int__(self):
-        super(gym_SBR, self).__int__()   #Env. 이름 바꾸자
+        super(SbrEnv, self).__int__()   #Env. 이름 바꾸자
         self.reward_range = (0,Max_reward)
         
         # Action: "Continuous" value for DO_setpoints, phase3,5,8에서의 값, 0~5로 지정함.
