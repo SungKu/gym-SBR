@@ -19,6 +19,10 @@ from gym_SBR.envs.module_temperature import DO_set
 from gym_SBR.envs.module_batch_time import batch_time
 
 # create a list for string global rewards and episodes
+
+
+
+
 global_rewards = []
 global_episodes = 0
 
@@ -138,18 +142,17 @@ kla_memory_8_1 = kla_memory8
 class SbrEnv(gym.Env):
     """custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
+
     
-    def __int__(self):
-        # Action: "Continuous" value for DO_setpoints, phase3,5,8에서의 값, 0~5로 지정함.
+    def __init__(self):
         self.action_space = spaces.Box(low=np.array([0,0,0]), high = np.array([5,5,5]), dtype=np.float16)
-        # Observation: ???
-        self.observation_space= spaces.Box(low=np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0]), high= np.array([1.32,30,20,3000,100,2000,200,2000,10,20,20,10,10,10]), shape = (14,1), dtype = np.float16   )
+        self.observation_space= spaces.Box(low=np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0]), high= np.array([1.32,30,20,3000,100,2000,200,2000,10,20,20,10,10,10]), dtype = np.float16 )
         
     
     def reset(self):
             influent_mixed[0] = 0.66 # 단위 변환
         
-            state_instant = np.append([x],[influent_mixed], axis=0)  # 한번 시도
+            state_instant = np.append([x_last],[influent_mixed], axis=0)  # 한번 시도
             state = np.sum(state_instant, axis=0)
             
             return state
@@ -162,10 +165,13 @@ class SbrEnv(gym.Env):
     
     def step(self, action) :
         
+        global influent_mixed
+        global x_last   
+
         #Execute one time steo within the environment
         self._take_action(action)
         
-        t,soln, x_last, t_memory1, sp_memory1, So_memory1, t_memory2, sp_memory2, So_memory2, t_memory3, sp_memory3, So_memory3, t_memory4, sp_memory4, So_memory4, t_memory5, sp_memory5, So_memory5, t_memory8, sp_memory8, So_memory8, kla_memory1, kla_memory2, kla_memory3, kla_memory4, kla_memory5, kla_memory8, Qeff,Qw = self._next_observation(self, WV, IV, t_ratio, influent_mixed, DO_control_par, x_last, DO_setpoints, u_batch_1,  u_batch_2,   u_batch_3, u_batch_4, u_batch_5, u_batch_8, kla_memory_1_1, kla_memory_2_1, kla_memory_3_1, kla_memory_4_1, kla_memory_5_1, kla_memory_8_1)
+        t,soln, x_last, t_memory1, sp_memory1, So_memory1, t_memory2, sp_memory2, So_memory2, t_memory3, sp_memory3, So_memory3, t_memory4, sp_memory4, So_memory4, t_memory5, sp_memory5, So_memory5, t_memory8, sp_memory8, So_memory8, kla_memory1, kla_memory2, kla_memory3, kla_memory4, kla_memory5, kla_memory8, Qeff,Qw = self._next_observation(WV, IV, t_ratio, influent_mixed, DO_control_par, x_last, DO_setpoints, u_batch_1,  u_batch_2,   u_batch_3, u_batch_4, u_batch_5, u_batch_8, kla_memory_1_1, kla_memory_2_1, kla_memory_3_1, kla_memory_4_1, kla_memory_5_1, kla_memory_8_1)
         
         reward =  sbr_reward(x_last,  DO_control_par, kla_memory_3, kla_memory_5, kla_memory_8, Qeff,Qw)
 
@@ -182,16 +188,24 @@ class SbrEnv(gym.Env):
     
     def _take_action(self, action):
         
+        global global_rewards, global_episodes
+        global t_memory1, t_memory2, t_memory3, t_memory4, t_memory5, t_memory8
+        global So_memory1, So_memory2, So_memory3, So_memory4, So_memory5, So_memory8
+        global sp_memory1, sp_memory2, sp_memory3, sp_memory4, sp_memory5, sp_memory8
+        global memory_e_batch_1, memory_e_batch_2, memory_e_batch_3, memory_e_batch_4, memory_e_batch_5, memory_e_batch_8
+        global u_batch_1, u_batch_2, u_batch_3, u_batch_4, u_batch_5, u_batch_8
+        global t, soln
+        
         DO_setpoints[2] = action[0]
         DO_setpoints[4] = action[1]
         DO_setpoints[7] = action[2]
         
-        sp_memory3 = sp_memory3[:]/sp_memory3[0]*action[0]
-        sp_memory5 = sp_memory5[:] / sp_memory5[0] * action[1]
-        sp_memory8 = sp_memory8[:] / sp_memory8[0] * action[2]
+        sp_memory3_1 = sp_memory3[:]/sp_memory3[0]*action[0]
+        sp_memory5_1 = sp_memory5[:] / sp_memory5[0] * action[1]
+        sp_memory8_1 = sp_memory8[:] / sp_memory8[0] * action[2]
         
         
-        u_batch_1, u_batch_2, u_batch_3, u_batch_4, u_batch_5, u_batch_8, memory_e_batch_1, memory_e_batch_2, memory_e_batch_3, memory_e_batch_4, memory_e_batch_5, memory_e_batch_8 = batch_PID(par_batchPID, t_memory1, t_memory2, t_memory3, t_memory4, t_memory5, t_memory8, t_delta, So_memory1, So_memory2, So_memory3, So_memory4, So_memory5, So_memory8,  sp_memory1, sp_memory2, sp_memory3, sp_memory4, sp_memory5, sp_memory8, memory_e_batch_1, memory_e_batch_2, memory_e_batch_3, memory_e_batch_4, memory_e_batch_5, memory_e_batch_8, u_batch_1, u_batch_2, u_batch_3, u_batch_4, u_batch_5, u_batch_8)
+        u_batch_1, u_batch_2, u_batch_3, u_batch_4, u_batch_5, u_batch_8, memory_e_batch_1, memory_e_batch_2, memory_e_batch_3, memory_e_batch_4, memory_e_batch_5, memory_e_batch_8 = batch_PID(par_batchPID, t_memory1, t_memory2, t_memory3, t_memory4, t_memory5, t_memory8, t_delta, So_memory1, So_memory2, So_memory3, So_memory4, So_memory5, So_memory8,  sp_memory1, sp_memory2, sp_memory3_1, sp_memory4, sp_memory5_1, sp_memory8_1, memory_e_batch_1, memory_e_batch_2, memory_e_batch_3, memory_e_batch_4, memory_e_batch_5, memory_e_batch_8, u_batch_1, u_batch_2, u_batch_3, u_batch_4, u_batch_5, u_batch_8)
 
 
 
@@ -204,6 +218,7 @@ class SbrEnv(gym.Env):
         
         
       
+
 
 
 
