@@ -9,7 +9,7 @@ from gym import spaces
 
 #influent generation
 from gym_SBR.envs import buffer_tank2 as buffer_tank
-from gym_SBR.envs import SBR_model_PID_on as SBR_PID_on
+from gym_SBR.envs import SBR_model_FBc_implemented as SBR_PID_on
 
 from gym_SBR.envs.module_reward import sbr_reward
 from gym_SBR.envs.module_temperature import DO_set
