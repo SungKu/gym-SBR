@@ -9,7 +9,7 @@ from gym import spaces
 
 #influent generation
 from gym_SBR.envs import buffer_tank2 as buffer_tank
-from gym_SBR.envs import SBR_model_FBc_implemented as SBR_PID_on
+from gym_SBR.envs import SBR_model_FBc_implemented as SBR
 
 from gym_SBR.envs.module_reward import sbr_reward
 from gym_SBR.envs.module_temperature import DO_set
@@ -125,7 +125,7 @@ class SbrEnv1(gym.Env):
 
     def _next_observation(self, WV, IV, t_ratio, influent_mixed, DO_control_par, x0, DO_setpoints):
         t, x, x_last, kla_memory1, So_memory1, sp_memory1, t_memory1, kla_memory2, So_memory2, sp_memory2, t_memory2, kla_memory3, So_memory3, sp_memory3, t_memory3, kla_memory4, So_memory4, sp_memory4, t_memory4, kla_memory5, So_memory5, sp_memory5, t_memory5, kla_memory8, So_memory8, sp_memory8, t_memory5,Qeff,Qw = \
-        SBR_PID_on.run(WV, IV, t_ratio, influent_mixed, DO_control_par,x0, DO_setpoints)        
+        SBR.run(WV, IV, t_ratio, influent_mixed, DO_control_par,x0, DO_setpoints)        
 
         return  t,soln, x_last, t_memory1, sp_memory1, So_memory1, t_memory2, sp_memory2, So_memory2, t_memory3, sp_memory3, So_memory3, t_memory4, sp_memory4, So_memory4, t_memory5, sp_memory5, So_memory5,   t_memory8, sp_memory8, So_memory8,    kla_memory1, kla_memory2, kla_memory3, kla_memory4, kla_memory5, kla_memory8,   Qeff,Qw
     
