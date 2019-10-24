@@ -103,7 +103,7 @@ class SbrEnv1(gym.Env):
             #influent_mixed[0] = 0.66 # 단위 변환
             
             #state = x_last        
-            state_instant = np.append([x_last],[influent_mixed], axis=0)  # 한번 시도
+            state_instant = np.append([x],[influent_mixed], axis=0)  # 한번 시도
             state = np.sum(state_instant, axis=0)
             
             state[0] = 1#state[0]/1.32
@@ -135,7 +135,7 @@ class SbrEnv1(gym.Env):
         action = np.clip(action, self.action_space.low, self.action_space.high)
         
         global influent_mixed
-        global x_last   
+        global x_last,x   
         influent_mixed[0] = 31.4285 # 단위 변환
         
         print("____action(clipped) in Gym: {}".format(action))
