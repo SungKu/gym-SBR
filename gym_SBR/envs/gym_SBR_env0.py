@@ -200,7 +200,7 @@ class SbrEnv(gym.Env):
         t,soln, x_last, t_memory1, sp_memory1, So_memory1, t_memory2, sp_memory2, So_memory2, t_memory3, sp_memory3, So_memory3, t_memory4, sp_memory4, So_memory4, t_memory5, sp_memory5, So_memory5, t_memory8, sp_memory8, So_memory8, kla_memory1, kla_memory2, kla_memory3, kla_memory4, kla_memory5, kla_memory8, Qeff,Qw = self._next_observation(WV, IV, t_ratio, influent_mixed, DO_control_par, x_last, DO_setpoints, u_batch_1,  u_batch_2,   u_batch_3, u_batch_4, u_batch_5, u_batch_8, kla_memory_1_1, kla_memory_2_1, kla_memory_3_1, kla_memory_4_1, kla_memory_5_1, kla_memory_8_1)
                 
         
-        reward =  sbr_reward(x_last,  DO_control_par, kla_memory3, kla_memory5, kla_memory8, Qeff,Qw)
+        reward =  sbr_reward(x_last,  DO_control_par, kla_memory_3, kla_memory_5, kla_memory_8, Qeff,Qw)
         self.reward = reward
 
         done = True
