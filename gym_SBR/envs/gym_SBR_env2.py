@@ -93,7 +93,7 @@ class SbrEnv2(gym.Env):
              
             influent_mixed[0] = Qin/(t_cycle * t_ratio[0])  # 단위 변환
                
-            state_instant = np.append([x],[influent_mixed], axis=0)  # 한번 시도
+            state_instant = np.append([x0],[influent_mixed], axis=0)  # 한번 시도
             state = np.sum(state_instant, axis=0)
 
             state[0] = 1
