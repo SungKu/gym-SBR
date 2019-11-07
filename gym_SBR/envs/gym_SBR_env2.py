@@ -13,7 +13,6 @@ from gym_SBR.envs.module_batch_time import batch_time
 
 # create a list for string global rewards and episodes
 
-
 global_rewards = []
 global_episodes = 0
 
@@ -31,7 +30,6 @@ global WV, IV, Qin, t_ratio, t_cycle
 
 # Plant Config.
 WV = 1.32  # m^3, Working Volume
-IV = 0.6161484733495801  # m^3, Inoculum Volume
 
 t_ratio = [4.2/100, 8.3/100, 37.5/100, 31.2/100, 2.1/100, 8.3/100, 2.1/100, 6.3/100]
 t_delta = 0.002  /24
@@ -40,17 +38,6 @@ t_delta = 0.002  /24
 t_cycle = 12 / 24  # hour -> day, 12hr
 
 t_memory1, t_memory2, t_memory3, t_memory4, t_memory5, t_memory8 = batch_time(t_cycle, t_ratio, t_delta)
-
-
-
-# initial state from stablization
-x0 = [0.6161484733495801,30,0.571098000538576,1440.01157895393,
-31.254221999137,2599.2714348941,168.915006750837,551.901552960823,2.16607843793004,
-13.3791460027604,0.00562880208518134,0.35996687629947,1.86916737961228, 3.790463057094611]
-
-# Load: generated influent
-switch, influent_mixed, influent_var = buffer_tank.influent.buffer_tank(np.random.choice(8,1))
-
 
 
 #Oxygen concentration at saturation : 15deg
@@ -80,45 +67,64 @@ class SbrEnv2(gym.Env):
         
     
     def reset(self):
-          
-            global influent_mixed, x0
-            
-            # Load: generated influent
-            switch, influent_mixed, influent_var = buffer_tank.influent.buffer_tank(np.random.choice(8,1))
+        global influent_mixed
+        global WV, IV
+        global x0, x0_init
+        global IV_init, Qin
 
-            # Filling phase에서 들어오는 유입수 정의
+        # initial state from stablization
+        x0_init = [0.6161484733495801, 30, 0.571098000538576, 1440.01157895393,
+                   31.254221999137, 2599.2714348941, 168.915006750837, 551.901552960823, 2.16607843793004,
+                   13.3791460027604, 0.00562880208518134, 0.35996687629947, 1.86916737961228, 3.790463057094611]
 
-            Qin = (WV - IV)
-            print("IV in step: {}".format(IV))
-             
-            influent_mixed[0] = Qin/(t_cycle * t_ratio[0])  # 단위 변환
-               
-            state_instant = np.append([x0],[influent_mixed], axis=0)  # 한번 시도
-            state = np.sum(state_instant, axis=0)
 
-            state[0] = 1
-            state[1] = state[1]/60
-            state[2] = state[2]/70
-            state[3] = state[3]/1481
-            state[4] = state[4]/200
-            state[5] = state[5]/2622
-            state[6] = state[6]/169
-            state[7] = state[7]/552
-            state[8] = state[8]/2
-            state[9] = state[9]/14
-            state[10] = state[10]/50
-            state[11] = state[11]/11
-            state[12] = state[12]/15
-            state[13] = state[13]/11
+        # initial Inoculum Volume
 
-    
-            return state
+        IV_init = 0.6161484733495801  # m^3, Inoculum Volume
+
+        # Volume update from "Step"
+        if 'IV_new' in globals():
+            IV = IV_new
+        if 'IV_new' not in globals():
+            IV = IV_init
+
+        Qin = WV - IV
+        print('Qin in reset: {}'.format(Qin))
+
+        # Initial states from "Step"
+        if 'x0_new' in globals():
+            x0 = x0_new
+        if 'x0_new' not in globals():
+            x0 = x0_init
+
+        # Load: generated influent
+        switch, influent_mixed, influent_var = buffer_tank.influent.buffer_tank(np.random.choice(8,1))
+
+
+        state_instant = np.append([x0],[influent_mixed], axis=0)  # 한번 시도
+        state = np.sum(state_instant, axis=0)
+
+        state[0] = state[0]/WV
+        state[1] = state[1]/60
+        state[2] = state[2]/70
+        state[3] = state[3]/1481
+        state[4] = state[4]/200
+        state[5] = state[5]/2622
+        state[6] = state[6]/169
+        state[7] = state[7]/552
+        state[8] = state[8]/2
+        state[9] = state[9]/14
+        state[10] = state[10]/50
+        state[11] = state[11]/11
+        state[12] = state[12]/15
+        state[13] = state[13]/11
+        
+        
+        return state
 
     def _next_observation(self, WV, IV, t_ratio, influent_mixed, DO_control_par, x0, DO_setpoints,kla0):
         t, x, x_last, sp_memory3, So_memory3,t_memory3, sp_memory5, So_memory5, t_save5, sp_memory8, So_memory8, t_save8,Qeff, eff,Qw,kla3,kla5, kla8,EQI = SBR.run(WV, IV, t_ratio, influent_mixed, DO_control_par,x0, DO_setpoints, kla0)
-        print("length of t_memory3: {}".format(len(t_memory3)))
-        print("length of So_memory3: {}".format(len(So_memory3)))
-        print("length of sp_memory3: {}".format(len(sp_memory3)))
+
 
         return  t, x, x_last, sp_memory3, So_memory3,t_memory3, sp_memory5, So_memory5, t_save5, sp_memory8, So_memory8, t_save8,Qeff, eff,Qw,kla3,kla5, kla8,EQI
     
@@ -127,30 +133,50 @@ class SbrEnv2(gym.Env):
         action = np.clip(action, self.action_space.low, self.action_space.high)
         
         global influent_mixed
-        global x_last,x   
-        
-        
-        print("IV in step: {}".format(IV))
-              
+        global x_last,x, x0,x0_new,x0_init
+        global WV,IV_new
+
         print("____action(clipped) in Gym: {}".format(action))
 
         #Execute one time steo within the environment
         self._take_action(action)
-    
-    
+
+        # Filling phase동안 들어오는 유입수 유량
+        influent_mixed[0] = Qin/(t_cycle*t_ratio[0])
+
+
+        # SBR 돌리기
         t, x, x_last, sp_memory3, So_memory3,t_memory3, sp_memory5, So_memory5, t_save5, sp_memory8, So_memory8, t_save8,Qeff, eff,Qw,kla3,kla5, kla8,EQI= self._next_observation(WV, IV, t_ratio, influent_mixed, DO_control_par, x0, DO_setpoints, kla0)
-        
-        x0 = x_last 
-                
-        
+        x0_new = x_last
+        IV_new = x_last[0]
+
+
+        Snh = eff[3]
         reward, OCI = sbr_reward(DO_control_par, kla3, kla5, kla8,Qw, EQI,Qin, Qeff, Snh)
-        print('REWARD in step: {}'.format(reward))
-        
+
         self.reward = reward
 
         done = True
 
-       
+
+        state = np.array(x0_new)
+
+
+        state[0] = state[0] / WV
+        state[1] = state[1] / 60
+        state[2] = state[2] / 70
+        state[3] = state[3] / 1481
+        state[4] = state[4] / 200
+        state[5] = state[5] / 2622
+        state[6] = state[6] / 169
+        state[7] = state[7] / 552
+        state[8] = state[8] / 2
+        state[9] = state[9] / 14
+        state[10] = state[10] / 50
+        state[11] = state[11] / 11
+        state[12] = state[12] / 15
+        state[13] = state[13] / 11
+      
         return  state, reward, done, {}
     
     def _take_action(self, action):
