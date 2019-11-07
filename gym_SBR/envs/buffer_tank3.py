@@ -3,7 +3,6 @@
 
 """Author: SKHEO, KHU"""
 
-import sub_phases as cycle
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.font_manager import FontProperties
