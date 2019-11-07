@@ -116,6 +116,9 @@ class SbrEnv2(gym.Env):
 
     def _next_observation(self, WV, IV, t_ratio, influent_mixed, DO_control_par, x0, DO_setpoints,kla0):
         t, x, x_last, sp_memory3, So_memory3,t_memory3, sp_memory5, So_memory5, t_save5, sp_memory8, So_memory8, t_save8,Qeff, eff,Qw,kla3,kla5, kla8,EQI = SBR.run(WV, IV, t_ratio, influent_mixed, DO_control_par,x0, DO_setpoints, kla0)
+        print("length of t_memory3: {}".format(len(t_memory3)))
+        print("length of So_memory3: {}".format(len(So_memory3)))
+        print("length of sp_memory3: {}".format(len(sp_memory3)))
 
         return  t, x, x_last, sp_memory3, So_memory3,t_memory3, sp_memory5, So_memory5, t_save5, sp_memory8, So_memory8, t_save8,Qeff, eff,Qw,kla3,kla5, kla8,EQI
     
@@ -156,9 +159,7 @@ class SbrEnv2(gym.Env):
         global sp_memory1, sp_memory2, sp_memory3, sp_memory4, sp_memory5, sp_memory8
         global t, soln
         
-        print("length of t_memory3: {}".format(t_memory3))
-        print("length of So_memory3: {}".format(So_memory3))
-        print("length of sp_memory3: {}".format(sp_memory3))
+
        
         
         DO_setpoints[2] = action[0]
