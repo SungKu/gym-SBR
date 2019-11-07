@@ -67,7 +67,7 @@ DO_setpoints = [0,0,3,0,3,0,0,3]
 
 kla0 = 0
 
-class SbrEnv1(gym.Env):
+class SbrEnv2(gym.Env):
     """custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
 
