@@ -81,7 +81,7 @@ class SbrEnv2(gym.Env):
     
     def reset(self):
           
-            global state
+            global influent_mixed, x0
             
             # Load: generated influent
             switch, influent_mixed, influent_var = buffer_tank.influent.buffer_tank(np.random.choice(8,1))
@@ -139,6 +139,8 @@ class SbrEnv2(gym.Env):
     
     
         t, x, x_last, sp_memory3, So_memory3,t_memory3, sp_memory5, So_memory5, t_save5, sp_memory8, So_memory8, t_save8,Qeff, eff,Qw,kla3,kla5, kla8,EQI= self._next_observation(WV, IV, t_ratio, influent_mixed, DO_control_par, x0, DO_setpoints, kla0)
+        
+        x0 = x_last 
                 
         
         reward, OCI = sbr_reward(DO_control_par, kla3, kla5, kla8,Qw, EQI,Qin, Qeff, Snh)
