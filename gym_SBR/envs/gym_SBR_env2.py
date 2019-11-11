@@ -156,6 +156,11 @@ class SbrEnv2(gym.Env):
 
         Snh = eff[3]
         reward, OCI = sbr_reward(DO_control_par, kla3, kla5, kla8,Qw, EQI,Qin, Qeff, Snh)
+        
+        print("REWARD: {}".format(reward))
+        print("__Snh: {}".format(Snh))
+        print("__OCI: {}".format(OCI))
+
 
         self.reward = reward
 
