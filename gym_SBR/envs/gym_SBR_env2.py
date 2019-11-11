@@ -62,7 +62,7 @@ class SbrEnv2(gym.Env):
     def __init__(self):
         self.action_space = spaces.Box(np.array([1.0,1.0,1.0]), np.array([8.0,8.0,8.0]), dtype=np.float32)
                                        
-        self.observation_space= spaces.Box(low=np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0]), high= np.array([2,2,2,2,2,2,2,2,2,2,2,2,2,2]), dtype = np.float32 )
+        self.observation_space= spaces.Box(low=np.array([0.5,100,0]), high= np.array([1.3,5300,50]), dtype = np.float32 )
         self.reward = 0
         
     
@@ -102,23 +102,33 @@ class SbrEnv2(gym.Env):
         print("Switch: {}".format(switch))
 
 
-        state_instant = np.append([x0],[influent_mixed], axis=0)  # 한번 시도
-        state = np.sum(state_instant, axis=0)
+        state_instant1 = np.append([x0],[influent_mixed], axis=0)  # 한번 시도
+        state_instant2 = np.sum(state_instant1, axis=0)
+        
+        Vv_in = state_instant2[0]
+        COD_in1 = state_instant2[1]+state_instant2[2]+state_instant2[3]+state_instant2[4]+state_instant2[5]+state_instant2[6]+state_instant2[7]
+        Snh_in1 = state_instant2[10]
+        
+        #COD_in2 = (COD_in1-5150)/10
+        #Snh_in2 = (Snh1-30)
+        
+        state = [Vv_in, COD_in1, Snh_in1]
+        
 
-        state[0] = state[0]/WV
-        state[1] = state[1]/60
-        state[2] = state[2]/70
-        state[3] = state[3]/1481
-        state[4] = state[4]/200
-        state[5] = state[5]/2622
-        state[6] = state[6]/169
-        state[7] = state[7]/552
-        state[8] = state[8]/2
-        state[9] = state[9]/14
-        state[10] = state[10]/50
-        state[11] = state[11]/11
-        state[12] = state[12]/15
-        state[13] = state[13]/11
+        #state[0] = state[0]/WV
+        #state[1] = state[1]/60
+        #state[2] = state[2]/70
+        #state[3] = state[3]/1481
+        #state[4] = state[4]/200
+        #state[5] = state[5]/2622
+        #state[6] = state[6]/169
+        #state[7] = state[7]/552
+        #state[8] = state[8]/2
+        #state[9] = state[9]/14
+        #state[10] = state[10]/50
+        #state[11] = state[11]/11
+        #state[12] = state[12]/15
+        #state[13] = state[13]/11
         
         print("State: {}".format(state))
         
@@ -165,25 +175,32 @@ class SbrEnv2(gym.Env):
         self.reward = reward
 
         done = True
+        
+        
+        COD_eff = eff[2]
+        Snh_eff = eff[3]
+        
+        state = [Qeff, COD_eff, Snh_eff]
+      
 
 
         state = np.array(x0_new)
 
 
-        state[0] = state[0] / WV
-        state[1] = state[1] / 60
-        state[2] = state[2] / 70
-        state[3] = state[3] / 1481
-        state[4] = state[4] / 200
-        state[5] = state[5] / 2622
-        state[6] = state[6] / 169
-        state[7] = state[7] / 552
-        state[8] = state[8] / 2
-        state[9] = state[9] / 14
-        state[10] = state[10] / 50
-        state[11] = state[11] / 11
-        state[12] = state[12] / 15
-        state[13] = state[13] / 11
+        #state[0] = state[0] / WV
+        #state[1] = state[1] / 60
+        #state[2] = state[2] / 70
+        #state[3] = state[3] / 1481
+        #state[4] = state[4] / 200
+        #state[5] = state[5] / 2622
+        #state[6] = state[6] / 169
+        #state[7] = state[7] / 552
+        #state[8] = state[8] / 2
+        #state[9] = state[9] / 14
+        #state[10] = state[10] / 50
+        #state[11] = state[11] / 11
+        #state[12] = state[12] / 15
+        #state[13] = state[13] / 11
       
         return  state, reward, done, {}
     
