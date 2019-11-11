@@ -62,7 +62,7 @@ class SbrEnv2(gym.Env):
     def __init__(self):
         self.action_space = spaces.Box(np.array([1.0,1.0,1.0]), np.array([8.0,8.0,8.0]), dtype=np.float32)
                                        
-        self.observation_space= spaces.Box(low=np.array([0.5,100,0]), high= np.array([1.3,5300,50]), dtype = np.float32 )
+        self.observation_space= spaces.Box(low=np.array([0.5,0]), high= np.array([1.33,2]), dtype = np.float32 )
         self.reward = 0
         
     
@@ -110,9 +110,9 @@ class SbrEnv2(gym.Env):
         Snh_in1 = state_instant2[10]
         
         #COD_in2 = (COD_in1-5150)/10
-        #Snh_in2 = (Snh1-30)
+        Snh_in2 = (Snh1)/30
         
-        state = [Vv_in, COD_in1, Snh_in1]
+        state = [Vv_in, Snh_in2]
         
 
         #state[0] = state[0]/WV
@@ -178,9 +178,9 @@ class SbrEnv2(gym.Env):
         
         
         COD_eff = eff[2]
-        Snh_eff = eff[3]
+        Snh_eff = eff[3]/30
         
-        state = [Qeff, COD_eff, Snh_eff]
+        state = [Qeff, Snh_eff]
       
 
 
