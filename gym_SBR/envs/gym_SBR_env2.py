@@ -89,7 +89,6 @@ class SbrEnv2(gym.Env):
             IV = IV_init
 
         Qin = WV - IV
-        print('Qin in reset: {}'.format(Qin))
 
         # Initial states from "Step"
         if 'x0_new' in globals():
@@ -99,6 +98,8 @@ class SbrEnv2(gym.Env):
 
         # Load: generated influent
         switch, influent_mixed, influent_var = buffer_tank.influent.buffer_tank(np.random.choice(8,1))
+        
+        print("Switch: {}".format(switch))
 
 
         state_instant = np.append([x0],[influent_mixed], axis=0)  # 한번 시도
@@ -118,6 +119,8 @@ class SbrEnv2(gym.Env):
         state[11] = state[11]/11
         state[12] = state[12]/15
         state[13] = state[13]/11
+        
+        print("State: {}".format(state))
         
         
         return state
