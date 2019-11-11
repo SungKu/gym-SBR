@@ -184,7 +184,7 @@ class SbrEnv2(gym.Env):
       
 
 
-        state = np.array(x0_new)
+        #state = np.array(x0_new)
 
 
         #state[0] = state[0] / WV
