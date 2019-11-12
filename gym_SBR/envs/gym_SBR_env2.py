@@ -110,7 +110,7 @@ class SbrEnv2(gym.Env):
         Snh_in1 = state_instant2[10]
         
         #COD_in2 = (COD_in1-5150)/10
-        Snh_in2 = (Snh1)/30
+        Snh_in2 = (Snh_in1)/30
         
         state = [Vv_in, Snh_in2]
         
