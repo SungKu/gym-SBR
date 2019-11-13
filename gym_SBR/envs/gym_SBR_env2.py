@@ -72,6 +72,7 @@ class SbrEnv2(gym.Env):
         global WV, IV
         global x0, x0_init
         global IV_init, Qin
+        global state
 
         # initial state from stablization
         x0_init = [0.6161484733495801, 30, 0.571098000538576, 1440.01157895393,
@@ -225,7 +226,7 @@ class SbrEnv2(gym.Env):
     
     def _take_action(self, action):
         
-        global global_rewards, global_episodes
+        #global global_rewards, global_episodes
         global t_memory1, t_memory2, t_memory3, t_memory4, t_memory5, t_memory8
         global So_memory1, So_memory2, So_memory3, So_memory4, So_memory5, So_memory8
         global sp_memory1, sp_memory2, sp_memory3, sp_memory4, sp_memory5, sp_memory8
