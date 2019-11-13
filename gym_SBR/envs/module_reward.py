@@ -1,7 +1,7 @@
 import numpy
 
 
-def sbr_reward(DO_control_par, kla_memory3, kla_memory5, kla_memory8,Qw, EQI,Qin, Q_eff, Snh):
+def sbr_reward(DO_control_par, kla_memory3, kla_memory5, kla_memory8,Qw, EQI,Qin, Q_eff, Snh,DO_setpoints):
 
     t_delta = 0.002/24
 
