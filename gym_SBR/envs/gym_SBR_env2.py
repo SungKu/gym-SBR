@@ -149,13 +149,14 @@ class SbrEnv2(gym.Env):
         global x_last,x, x0,x0_new,x0_init
         global WV,IV_new
 
-        print("____action(clipped) in Gym: {}".format(action))
-
         #Execute one time steo within the environment
         self._take_action(action)
 
         # Filling phase동안 들어오는 유입수 유량
         influent_mixed[0] = Qin/(t_cycle*t_ratio[0])
+
+        
+        print("____take_action: {}".format(DO_setpoints))
 
 
         # SBR 돌리기
@@ -165,7 +166,7 @@ class SbrEnv2(gym.Env):
 
 
         Snh = eff[3]
-        reward, OCI = sbr_reward(DO_control_par, kla3, kla5, kla8,Qw, EQI,Qin, Qeff, Snh)
+        reward, OCI = sbr_reward(DO_control_par, kla3, kla5, kla8,Qw, EQI,Qin, Qeff, Snh,DO_setpoints)
         
         print("REWARD: {}".format(reward))
         print("__Snh: {}".format(Snh))
