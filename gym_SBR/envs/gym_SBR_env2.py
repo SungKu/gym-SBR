@@ -60,7 +60,7 @@ class SbrEnv2(gym.Env):
 
     
     def __init__(self):
-        self.action_space = spaces.Box(np.array([0.,0.,0.]), np.array([1.0,1.0,1.0]), dtype=np.float32)
+        self.action_space = spaces.Box(np.array([0.]), np.array([1.0]), dtype=np.float32)
                                        
         self.observation_space= spaces.Box(low=np.array([0.5,0]), high= np.array([1.33,2]), dtype = np.float32 )
         self.reward = 0
@@ -216,8 +216,8 @@ class SbrEnv2(gym.Env):
        
         
         DO_setpoints[2] = action[0]*8
-        DO_setpoints[4] = action[1]*8
-        DO_setpoints[7] = action[2]*8
+        DO_setpoints[4] = action[0]*8
+        DO_setpoints[7] = action[0]*8
        
 
 
