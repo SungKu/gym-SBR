@@ -10,6 +10,7 @@ from gym_SBR.envs import SBR_model_FB as SBR
 from gym_SBR.envs.module_reward import sbr_reward
 from gym_SBR.envs.module_temperature import DO_set
 from gym_SBR.envs.module_batch_time import batch_time
+from gym_SBR.envs.component_figure import components
 
 # create a list for string global rewards and episodes
 
@@ -99,7 +100,8 @@ class SbrEnv2(gym.Env):
         # Load: generated influent
         switch, influent_mixed, influent_var = buffer_tank.influent.buffer_tank(np.random.choice(8,1))
         
-        #print("Switch: {}".format(switch))
+        print("Switch in reset: {}".format(switch))
+        print("influent_mixed in reset: {}".format(influent_mixed))
 
 
         state_instant1 = np.append([x0],[influent_mixed], axis=0)  # 한번 시도
@@ -112,8 +114,12 @@ class SbrEnv2(gym.Env):
         #COD_in2 = (COD_in1-5150)/10
         Snh_in2 = (Snh_in1)/30
         
+        print("Snh_in1 in reset: {}".format(Snh_in1))
+        print("Snh_in2 in reset: {}".format(Snh_in2))
+        
         state = np.array([Vv_in, Snh_in2])
         
+        print("Vv_in in reset: {}".format(Vv_in))
 
         #state[0] = state[0]/WV
         #state[1] = state[1]/60
@@ -130,7 +136,7 @@ class SbrEnv2(gym.Env):
         #state[12] = state[12]/15
         #state[13] = state[13]/11
         
-        #print("State: {}".format(state))
+        print("State in reset: {}".format(state))
         
         
         return state
@@ -144,7 +150,10 @@ class SbrEnv2(gym.Env):
     def step(self, action) :
         
         action = np.clip(action, self.action_space.low, self.action_space.high)
-        
+
+        print("state in step: {}".format(state))
+        print("action in step: {}".format(action))
+
         global influent_mixed
         global x_last,x, x0,x0_new,x0_init
         global WV,IV_new
@@ -156,21 +165,29 @@ class SbrEnv2(gym.Env):
         influent_mixed[0] = Qin/(t_cycle*t_ratio[0])
 
         
-        print("____take_action: {}".format(DO_setpoints))
+        print("DO setpoint after take_action in step: {}".format(DO_setpoints))
+        print("influent_mixed in step: {}".format(influent_mixed))
 
 
         # SBR 돌리기
         t, x, x_last, sp_memory3, So_memory3,t_memory3, sp_memory5, So_memory5, t_save5, sp_memory8, So_memory8, t_save8,Qeff, eff,Qw,kla3,kla5, kla8,EQI= self._next_observation(WV, IV, t_ratio, influent_mixed, DO_control_par, x0, DO_setpoints, kla0)
         x0_new = x_last
         IV_new = x_last[0]
+        
+        print("x_last in step: {}".format(x_last))
+        components(t,x)
+        print("x_last after next_observation in step: {}".format(DO_setpoints))
+        print("eff after next_observation in step: {}".format(eff))
+
+
 
 
         Snh = eff[3]
         reward, OCI = sbr_reward(DO_control_par, kla3, kla5, kla8,Qw, EQI,Qin, Qeff, Snh,DO_setpoints)
         
         print("REWARD: {}".format(reward))
-        #print("__Snh: {}".format(Snh))
-        #print("__OCI: {}".format(OCI))
+        print("Snh after module_reward in step: {}".format(Snh))
+        print("OCI after module_reward in step: {}".format(OCI))
 
 
         self.reward = reward
@@ -183,6 +200,7 @@ class SbrEnv2(gym.Env):
         
         state = np.array([Qeff, Snh_eff])
       
+        print("new state in step: {}".format(state))
 
 
         #state = np.array(x0_new)
@@ -220,6 +238,7 @@ class SbrEnv2(gym.Env):
         DO_setpoints[4] = action[0]*8
         DO_setpoints[7] = action[0]*8
        
+        print("DO setpoint in take_action: {}".format(DO_setpoints))
 
 
     def render(self, mode='human', close=False): 
