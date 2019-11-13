@@ -41,7 +41,9 @@ def sbr_reward(DO_control_par, kla_memory3, kla_memory5, kla_memory8,Qw, EQI,Qin
 
     r_OCI = 5 - OCI
 
-    reward  =  r_OCI + r_Snh
+    #reward  =  r_OCI + r_Snh
+    
+    reward = DO_setpoints[0]
 
 
 
