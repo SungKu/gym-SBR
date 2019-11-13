@@ -99,7 +99,7 @@ class SbrEnv2(gym.Env):
         # Load: generated influent
         switch, influent_mixed, influent_var = buffer_tank.influent.buffer_tank(np.random.choice(8,1))
         
-        print("Switch: {}".format(switch))
+        #print("Switch: {}".format(switch))
 
 
         state_instant1 = np.append([x0],[influent_mixed], axis=0)  # 한번 시도
@@ -130,7 +130,7 @@ class SbrEnv2(gym.Env):
         #state[12] = state[12]/15
         #state[13] = state[13]/11
         
-        print("State: {}".format(state))
+        #print("State: {}".format(state))
         
         
         return state
@@ -169,8 +169,8 @@ class SbrEnv2(gym.Env):
         reward, OCI = sbr_reward(DO_control_par, kla3, kla5, kla8,Qw, EQI,Qin, Qeff, Snh,DO_setpoints)
         
         print("REWARD: {}".format(reward))
-        print("__Snh: {}".format(Snh))
-        print("__OCI: {}".format(OCI))
+        #print("__Snh: {}".format(Snh))
+        #print("__OCI: {}".format(OCI))
 
 
         self.reward = reward
