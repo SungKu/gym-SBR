@@ -97,6 +97,8 @@ class SbrEnv2(gym.Env):
             x0 = x0_init#x0_new
         if 'x0_new' not in globals():
             x0 = x0_init
+            
+        print('X0: {}'.format(x0))
 
         # Load: generated influent
         switch, influent_mixed, influent_var = buffer_tank.influent.buffer_tank(np.random.choice(8,1))
@@ -129,7 +131,6 @@ class SbrEnv2(gym.Env):
         
         action = np.clip(action, self.action_space.low, self.action_space.high)
 
-        print("action in step: {}".format(action))
 
         global influent_mixed
         global x_last,x, x0,x0_new,x0_init
