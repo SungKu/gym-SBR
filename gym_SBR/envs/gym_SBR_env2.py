@@ -63,7 +63,7 @@ class SbrEnv2(gym.Env):
     def __init__(self):
         self.action_space = spaces.Box(np.array([0.]), np.array([1.0]), dtype=np.float32)
                                        
-        self.observation_space= spaces.Box(low=np.array([0.5,0]), high= np.array([1.33,2]), dtype = np.float32 )
+        self.observation_space= spaces.Box(low=np.array([0.5,0,0]), high= np.array([1.33,3,2]), dtype = np.float32 )
         self.reward = 0
         
     
