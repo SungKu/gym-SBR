@@ -86,7 +86,7 @@ class SbrEnv2(gym.Env):
 
         # Volume update from "Step"
         if 'IV_new' in globals():
-            IV = IV_new
+            IV = IV_init#IV_new
         if 'IV_new' not in globals():
             IV = IV_init
 
@@ -94,7 +94,7 @@ class SbrEnv2(gym.Env):
 
         # Initial states from "Step"
         if 'x0_new' in globals():
-            x0 = x0_new
+            x0 = x0_init#x0_new
         if 'x0_new' not in globals():
             x0 = x0_init
 
