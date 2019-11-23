@@ -150,8 +150,6 @@ class SbrEnv2(gym.Env):
         x0_new = x_last
         IV_new = x_last[0]
         
-        components(t,x)
-
         Snh = eff[3]
         reward, OCI = sbr_reward(DO_control_par, kla3, kla5, kla8,Qw, EQI,Qin, Qeff, Snh,DO_setpoints)
         
