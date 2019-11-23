@@ -51,7 +51,7 @@ DO_control_par = [5.0, 0.00035, 0.02/24, 2, 0, 240, 12, 2, 5, 0.005, So_sat]
 dt = DO_control_par[2]
 
 #DO control setpoints
-DO_setpoints = [0,0,3,0,3,0,0,3]
+DO_setpoints = [0,0,2,0,2,0,0,2]
 
 kla0 = 0
 
@@ -100,9 +100,7 @@ class SbrEnv2(gym.Env):
 
         # Load: generated influent
         switch, influent_mixed, influent_var = buffer_tank.influent.buffer_tank(np.random.choice(8,1))
-        
-        print("Switch in reset: {}".format(switch))
-        print("influent_mixed in reset: {}".format(influent_mixed))
+  
 
 
         state_instant1 = np.append([x0],[influent_mixed], axis=0)  # 한번 시도
@@ -114,31 +112,10 @@ class SbrEnv2(gym.Env):
         
         #COD_in2 = (COD_in1-5150)/10
         Snh_in2 = (Snh_in1)/30
-        
-        print("Snh_in1 in reset: {}".format(Snh_in1))
-        print("Snh_in2 in reset: {}".format(Snh_in2))
-        
-        state = np.array([Vv_in, Snh_in2])
-        
-        print("Vv_in in reset: {}".format(Vv_in))
 
-        #state[0] = state[0]/WV
-        #state[1] = state[1]/60
-        #state[2] = state[2]/70
-        #state[3] = state[3]/1481
-        #state[4] = state[4]/200
-        #state[5] = state[5]/2622
-        #state[6] = state[6]/169
-        #state[7] = state[7]/552
-        #state[8] = state[8]/2
-        #state[9] = state[9]/14
-        #state[10] = state[10]/50
-        #state[11] = state[11]/11
-        #state[12] = state[12]/15
-        #state[13] = state[13]/11
-        
-        print("State in reset: {}".format(state))
-        
+        state = np.array([Vv_in, Snh_in2])
+       
+       
         
         return state
 
@@ -167,7 +144,6 @@ class SbrEnv2(gym.Env):
 
         
         print("DO setpoint after take_action in step: {}".format(DO_setpoints))
-        print("influent_mixed in step: {}".format(influent_mixed))
 
 
         # SBR 돌리기
@@ -175,21 +151,12 @@ class SbrEnv2(gym.Env):
         x0_new = x_last
         IV_new = x_last[0]
         
-        print("x_last in step: {}".format(x_last))
         components(t,x)
-        print("x_last after next_observation in step: {}".format(DO_setpoints))
-        print("eff after next_observation in step: {}".format(eff))
-
-
-
 
         Snh = eff[3]
         reward, OCI = sbr_reward(DO_control_par, kla3, kla5, kla8,Qw, EQI,Qin, Qeff, Snh,DO_setpoints)
         
         print("REWARD: {}".format(reward))
-        print("Snh after module_reward in step: {}".format(Snh))
-        print("OCI after module_reward in step: {}".format(OCI))
-
 
         self.reward = reward
 
@@ -200,27 +167,7 @@ class SbrEnv2(gym.Env):
         Snh_eff = eff[3]/30
         
         state = np.array([Qeff, Snh_eff])
-      
-        print("new state in step: {}".format(state))
 
-
-        #state = np.array(x0_new)
-
-
-        #state[0] = state[0] / WV
-        #state[1] = state[1] / 60
-        #state[2] = state[2] / 70
-        #state[3] = state[3] / 1481
-        #state[4] = state[4] / 200
-        #state[5] = state[5] / 2622
-        #state[6] = state[6] / 169
-        #state[7] = state[7] / 552
-        #state[8] = state[8] / 2
-        #state[9] = state[9] / 14
-        #state[10] = state[10] / 50
-        #state[11] = state[11] / 11
-        #state[12] = state[12] / 15
-        #state[13] = state[13] / 11
       
         return  state, reward, done, {}
     
@@ -238,8 +185,6 @@ class SbrEnv2(gym.Env):
         DO_setpoints[2] = action[0]*8
         DO_setpoints[4] = action[0]*8
         DO_setpoints[7] = action[0]*8
-       
-        print("DO setpoint in take_action: {}".format(DO_setpoints))
 
 
     def render(self, mode='human', close=False): 
