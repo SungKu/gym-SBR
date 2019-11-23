@@ -110,10 +110,10 @@ class SbrEnv2(gym.Env):
         COD_in1 = state_instant2[1]+state_instant2[2]+state_instant2[3]+state_instant2[4]+state_instant2[5]+state_instant2[6]+state_instant2[7]
         Snh_in1 = state_instant2[10]
         
-        #COD_in2 = (COD_in1-5150)/10
+        COD_in2 = (COD_in1-5150)/10
         Snh_in2 = (Snh_in1)/30
 
-        state = np.array([Vv_in, Snh_in2])
+        state = np.array([Vv_in,COD_in2, Snh_in2])
        
        
         
@@ -129,7 +129,6 @@ class SbrEnv2(gym.Env):
         
         action = np.clip(action, self.action_space.low, self.action_space.high)
 
-        print("state in step: {}".format(state))
         print("action in step: {}".format(action))
 
         global influent_mixed
@@ -166,7 +165,7 @@ class SbrEnv2(gym.Env):
         COD_eff = eff[2]
         Snh_eff = eff[3]/30
         
-        state = np.array([Qeff, Snh_eff])
+        state = np.array([Qeff,COD_eff, Snh_eff])
 
       
         return  state, reward, done, {}
