@@ -61,9 +61,9 @@ class SbrEnv2(gym.Env):
 
     
     def __init__(self):
-        self.action_space = spaces.Box(np.array([0.]), np.array([1.0]), dtype=np.float32)
+        self.action_space = spaces.Box(np.array([0.,0.,0.]), np.array([1.0,1.0,1.0]), dtype=np.float32)
                                        
-        self.observation_space= spaces.Box(low=np.array([0.5,0,0]), high= np.array([1.33,3,2]), dtype = np.float32 )
+        self.observation_space= spaces.Box(low=np.array([0.5,0,0]), high= np.array([1.33,2.5,2]), dtype = np.float32 )
         self.reward = 0
         
     
@@ -101,7 +101,7 @@ class SbrEnv2(gym.Env):
         print('X0: {}'.format(x0))
 
         # Load: generated influent
-        switch, influent_mixed, influent_var = buffer_tank.influent.buffer_tank(np.random.choice(8,1))
+        switch, influent_mixed, influent_var = buffer_tank.influent.buffer_tank(0)#np.random.choice(8,1))
   
 
 
@@ -112,10 +112,11 @@ class SbrEnv2(gym.Env):
         COD_in1 = state_instant2[1]+state_instant2[2]+state_instant2[3]+state_instant2[4]+state_instant2[5]+state_instant2[6]+state_instant2[7]
         Snh_in1 = state_instant2[10]
         
-        COD_in2 = (COD_in1-5150)/10
+        COD_in2 = (COD_in1-5145)/10
         Snh_in2 = (Snh_in1)/30
 
         state = np.array([Vv_in,COD_in2, Snh_in2])
+        print("State in reset: {}".format(state))
        
        
         
@@ -181,8 +182,8 @@ class SbrEnv2(gym.Env):
        
         
         DO_setpoints[2] = action[0]*8
-        DO_setpoints[4] = action[0]*8
-        DO_setpoints[7] = action[0]*8
+        DO_setpoints[4] = action[1]*8
+        DO_setpoints[7] = action[2]*8
 
 
     def render(self, mode='human', close=False): 
