@@ -244,10 +244,6 @@ class SbrEnv4(gym.Env):
         else:
             done = False
 
-        print("length of time: {}".format(len(t_t)))
-        print("Batch type: {}".format(batch_type))
-
-
 
         return   state, reward, done, {}
 
