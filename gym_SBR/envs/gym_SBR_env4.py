@@ -140,6 +140,7 @@ class SbrEnv4(gym.Env):
         #D = []  # derivative
 
     # | ii) parameters and  trajectory values related to PID control #len(t_save2) - 1
+        global dcv, ie, e
         dcv = []  #  derivate of controlled variable
         ie = []  # integral of the error
         e = [] # error
@@ -204,12 +205,13 @@ class SbrEnv4(gym.Env):
     # | x: State
     # | influent_mixed
 
-        global t, x_1, u
+        global t, x_1, u, batch_type
 
         if t == 0:
             u = 0
 
         u = u + action
+
         if u<0:
             u = 0
         elif u> 8:
@@ -218,26 +220,24 @@ class SbrEnv4(gym.Env):
             u = u
 
 
+
     # Assign: x_in
         if t == 0:
             x_in = x0   # when it is the first time to run SBR system (x from the reset stage)
-        else:
-            x_in = x_out[-1] # Update the initial value for running the SBR system
+        
 
-        for i in range(493):
-            batch_type, t, x_out, reward =self.run_step(batch_type, t, u, x_in, influent_mixed)
+        batch_type, t, x_out, reward =self.run_step(batch_type, t, u, x_in, influent_mixed)
 
 
-            # Next state
-            x_in = x_out[-1]
+        # Next state
+        x_in = x_out[-1]
 
-            # Calculate state
+        # Calculate state
 
-            state = x_in/x_1
+        state = x_in/x_1
 
-            if (batch_type == 2)&(t>=t_last):
-                done = True
-                break
+        if (batch_type == 2)&(t>=t_last):
+            done = True
 
         return   state, reward, done, {}
 
@@ -269,7 +269,7 @@ class SbrEnv4(gym.Env):
             # | initialize DO conc.
             So.append(x_in[8])
             # | initialize Kla
-            Kla.append(kla)
+            Kla.append(0) #kla
             x_t = np.array(x0)
 
     # Call: time range
