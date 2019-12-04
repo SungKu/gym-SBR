@@ -4,8 +4,7 @@ import numpy
 def sbr_reward(So_sat, Kla, batch_type, Qin, Qw,  eff):
 
     t_delta = 0.002/24
-    Q_eff = eff[0]
-    Snh = eff[3]
+
 
     #========= OCI ==========
     dt =  t_delta
@@ -33,10 +32,13 @@ def sbr_reward(So_sat, Kla, batch_type, Qin, Qw,  eff):
         # Aeration energy (kWh / d)
         AE_deltaT = 1.32*Kla[-1]*t_delta
         #sum(kla_memory3)*t_delta/(len(kla_memory3)*t_delta)
+        PE = 0
 
         r_Snh = 0
 
     if batch_type == 2:
+        Q_eff = eff[0]
+        Snh = eff[3]
 
         # Pumping energy (kWh / d)
         PE = ( 0.05* Qw + 0.004*Q_eff) # SBR에는 내부 외부 반송 없음
