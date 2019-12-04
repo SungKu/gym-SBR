@@ -88,6 +88,8 @@ class SbrEnv4(gym.Env):
         self.DO_control_par = [5.0, 0.00035, 0.02/24, 2, 0, 240, 12, 2, 5, 0.005, DO_set(15)]
         self.biomass_setpoint = 2700
         self.Qeff =0.66
+        self.x_1 = np.array([1.32000000e+00, 3.00000000e+01, 3.81606587e+01, 6.94658685e+02,1.07772100e+02, 1.22613841e+03, 7.88460027e+01, 2.57616136e+02,1.01108024e+00, 6.24510635e+00, 1.78877937e+01, 3.95743344e+00,5.70432163e+00, 5.50185509e+00])
+
 
     def reset(self):
 
@@ -179,14 +181,14 @@ class SbrEnv4(gym.Env):
         Qin = WV - IV
 
         # 5. Calculate the DeepRL state
-        x_1 = np.array([1.32000000e+00, 3.00000000e+01, 3.81606587e+01, 6.94658685e+02,1.07772100e+02, 1.22613841e+03, 7.88460027e+01, 2.57616136e+02,1.01108024e+00, 6.24510635e+00, 1.78877937e+01, 3.95743344e+00,5.70432163e+00, 5.50185509e+00])
+        #x_1 = np.array([1.32000000e+00, 3.00000000e+01, 3.81606587e+01, 6.94658685e+02,1.07772100e+02, 1.22613841e+03, 7.88460027e+01, 2.57616136e+02,1.01108024e+00, 6.24510635e+00, 1.78877937e+01, 3.95743344e+00,5.70432163e+00, 5.50185509e+00])
         x_2 = np.zeros([1,len(x0_init)])
         for i in range(len(x0_init)):
             if i == 0:
                 x_2[0][i] = Qin + IV
             else:
                 x_2[0][i] = (Qin*influent_mixed[i] + x0_init[i]*IV)/(Qin+IV)
-        state = x_2/x_1
+        state = x_2/self.x_1
 
         influent_mixed[0] = Qin/t_memory1[-1]
 
@@ -205,7 +207,7 @@ class SbrEnv4(gym.Env):
     # | x: State
     # | influent_mixed
 
-        global t, x_1, u, batch_type
+        global t, x_1, u, batch_type, x_out
 
         if t == 0:
             u = 0
@@ -220,10 +222,11 @@ class SbrEnv4(gym.Env):
             u = u
 
 
-
     # Assign: x_in
         if t == 0:
             x_in = x0   # when it is the first time to run SBR system (x from the reset stage)
+        else:
+            x_in = x_out[-1]
         
 
         batch_type, t, x_out, reward =self.run_step(batch_type, t, u, x_in, influent_mixed)
@@ -234,10 +237,17 @@ class SbrEnv4(gym.Env):
 
         # Calculate state
 
-        state = x_in/x_1
+        state = x_in/self.x_1
 
         if (batch_type == 2)&(t>=t_last):
             done = True
+        else:
+            done = False
+
+        print("length of time: {}".format(len(t_t)))
+        print("Batch type: {}".format(batch_type))
+
+
 
         return   state, reward, done, {}
 
@@ -248,7 +258,7 @@ class SbrEnv4(gym.Env):
     # | It is not considered as the MVs which the DeepRL operated.
     # | However, it should be altered as MV for next step.
     # | 0: Filling phase | 1: Reaction phase | 2: Settling phase & 3: Draw phase & 4: idle phase
-        global So, Kla, kla, dcv, ie, e, t_t, x_t
+        global So, Kla, kla, dcv, ie, e, t_t, x_t, Qw, eff_component
 
         if (t_memory1[0] <= t)&(t < t_memory1[-1]):
                 batch_type = 0
@@ -283,16 +293,20 @@ class SbrEnv4(gym.Env):
     # | 1. Filling phase
         if batch_type == 0: # Filling phase?
             x_out, t_range, Kla, So, dcv, ie, e = self.Sim_filling( x_in, t_range, u, influent_mixed, Kla, So, dcv, ie, e)
+            Qw = 0
+            eff_component = []
 
     # | 2. Reaction phase
 
         if batch_type == 1: # reaction phase?
             x_out, t_range, Kla, So, dcv, ie, e = self.Sim_rxn(x_in, t_range, u, Kla, So, dcv, ie, e)
+            Qw = 0
+            eff_component = []
 
     # | 3. Settling, drawing phases
     # |
         if batch_type == 2:  # settling phase?
-            x_out1, t_range1, Qw, PE, SP, EQI, eff_component = self.Sim_Settling_Drawing(x_in, t,t_ratio[5], t_ratio[6], t_delta,Qeff, biomass_setpoint)
+            x_out1, t_range1, Qw, PE, SP, EQI, eff_component,So = self.Sim_Settling_Drawing(x_in, t,t_ratio[5], t_ratio[6], t_delta, self.Qeff, self.biomass_setpoint,So)
             x_in = x_out1[-1]
             x_out2, t_range2, Kla, So, dcv, ie, e =self.Sim_idle(x_in, t_range1, t_ratio[7], u, Kla, So, dcv, ie, e)
             x_out = np.vstack([x_out1,x_out2[1:]])
@@ -906,7 +920,7 @@ class SbrEnv4(gym.Env):
 
         return dsXdt
 
-    def Sim_Settling_Drawing(self,x, t,t_settling, t_drawing, dt,Qeff, biomass_setpoint):
+    def Sim_Settling_Drawing(self,x, t,t_settling, t_drawing, dt,Qeff, biomass_setpoint,So):
         # Settling phases
         t_range_settling = np.linspace(t, t + t_settling*t_cycle, (t_settling*t_cycle) / dt)
 
@@ -1056,7 +1070,7 @@ class SbrEnv4(gym.Env):
         So += So_out
 
 
-        return x_out, t_range, Qw, PE, SP, EQI, eff_component
+        return x_out, t_range, Qw, PE, SP, EQI, eff_component, So
 
 # | 5. Idle phase
 
