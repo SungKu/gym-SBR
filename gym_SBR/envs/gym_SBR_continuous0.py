@@ -90,7 +90,7 @@ class SbrCnt0(gym.Env):
         self.Qeff = 0.66
 
 
-        self.x_1 = np.array([1.32000000e+00, 3.00000000e+01, 3.81606587e+01, 6.94658685e+02, 1.07772100e+02, 1.22613841e+03,
+        self.x_1 = np.array([0.5, 1.32000000e+00, 3.00000000e+01, 3.81606587e+01, 6.94658685e+02, 1.07772100e+02, 1.22613841e+03,
                         7.88460027e+01, 2.57616136e+02, 1.01108024e+00, 6.24510635e+00, 1.78877937e+01, 3.95743344e+00,
                         5.70432163e+00, 5.50185509e+00])
 
@@ -199,12 +199,13 @@ class SbrCnt0(gym.Env):
 
 
         # 5. Calculate the DeepRL state
-        x_2 = np.zeros([1, len(x0_init)])
+        x_2 = np.zeros([1, len(x0_init)+1])
         for i in range(len(x0_init)):
             if i == 0:
-                x_2[0][i] = Qin + IV
+                x_2[0][0] = t_t[-1] #time
+                x_2[0][i+1] = Qin + IV
             else:
-                x_2[0][i] = (Qin * influent_mixed[i] + x0_init[i] * IV) / (Qin + IV)
+                x_2[0][i+1] = (Qin * influent_mixed[i] + x0_init[i] * IV) / (Qin + IV)
         state = x_2 / self.x_1
 
 
@@ -245,8 +246,9 @@ class SbrCnt0(gym.Env):
         x_in = x_out[-1]
 
         # Calculate state
+        x_2 = np.hstack([t_t[-1], x_in])
 
-        state = x_in / self.x_1
+        state = x_2 / self.x_1
 
         if t >= t_memory5[-1]:
             done = True
@@ -272,10 +274,12 @@ class SbrCnt0(gym.Env):
 
 
             x_in = x_out2[-1]
-            state = x_in / self.x_1
+            x_2 = np.hstack([t_t[-1], x_in])
+            state = x_2 / self.x_1
 
         return state, reward, done, {}
-
+    
+    
     def run_step(self, t, u, x_in, influent_mixed, done): # steps for rxn phases
         global So, Kla, kla, dcv, ie, e, t_t, x_t, Qw, eff_component
 
