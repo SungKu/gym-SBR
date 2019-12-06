@@ -28,7 +28,8 @@ def sbr_reward(So_sat, Kla, done, eff):
         # Pumping energy (kWh / d)
         PE = ( 0.05* Qw + 0.004*Q_eff) # SBR에는 내부 외부 반송 없음
         # Aeration energy (kWh / d)
-        AE_deltaT = 1.32*sum(Kla)*t_delta
+        #AE_deltaT = 1.32*sum(Kla)#*t_delta
+        r_e = ((0 - 0.5) / (240 - 0)) * (Kla[-1] - 0) + 0.5
 
         if Snh < 4:
             r_Snh = 0
@@ -38,7 +39,8 @@ def sbr_reward(So_sat, Kla, done, eff):
     else:            # Reaction phases
 
         # Aeration energy (kWh / d)
-        AE_deltaT = 1.32*Kla[-1]*t_delta
+        r_e =  ((0-0.5)/(240 - 0))*(Kla[-1]-0) + 0.5 #AE_deltaT = 1.32*Kla[-1]#*t_delta
+
         #sum(kla_memory3)*t_delta/(len(kla_memory3)*t_delta)
         PE = 0
 
@@ -46,15 +48,15 @@ def sbr_reward(So_sat, Kla, done, eff):
 
 
 
-    AE = So_sat / (1.8 * 1000) * (AE_deltaT)
+    #AE = So_sat / (1.8 * 1000) * (AE_deltaT)
 
-    OCI = AE + PE  #+ ME #+ 5*SP
+    #OCI = AE # + PE  #+ ME #+ 5*SP
 
     #=============================
 
-    r_OCI = 0.5 - OCI
+    #r_OCI = 0.5 - OCI
 
-    reward  =  r_OCI + r_Snh
+    reward  =  r_Snh  +r_e  #+ r_OCI
     
 
 
