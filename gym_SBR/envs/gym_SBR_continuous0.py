@@ -65,7 +65,7 @@ tauI = 1#0.00035
 tauD = 0#0.0005
 
 
-class SbrCnt0():#(gym.Env):
+class SbrCnt0(gym.Env):
     
     """custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
