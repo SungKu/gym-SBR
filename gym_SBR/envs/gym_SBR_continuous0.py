@@ -60,8 +60,8 @@ DO_control_par = [5.0, 0.00035, 0.02 / 24, 2, 0, 240, 12, 2, 5, 0.005, DO_set(15
 
 # PID tuning
 # | PID parameters: optimized parameters, (hand tuning)
-Kc = 2
-tauI = 1#0.00035
+Kc = 5
+tauI = 3#0.00035
 tauD = 0#0.0005
 
 
@@ -267,7 +267,7 @@ class SbrCnt0(gym.Env):
 
             x_t = np.vstack([x_t,x_out[1:]])
             t_t = t_t+t_instant[1:]
-            
+
             reward = sbr_reward(DO_set(15), Kla, done, eff_component)
 
 
