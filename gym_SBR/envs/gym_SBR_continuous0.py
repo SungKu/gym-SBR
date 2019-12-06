@@ -78,7 +78,7 @@ class SbrCnt0(gym.Env):
 
         # state space: Continuous, components | normalized
         self.observation_space = spaces.Box(
-            low=0.9 * np.ones([14]), high=np.ones([14]), dtype=np.float32)
+            low=[0,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9], high=np.ones([15]), dtype=np.float32)
 
         # SBR parameters
         self.Spar = [0.24, 0.67, 0.08, 0.08, 0.06]  # (ref. BSM1 report Tbl. 2)
