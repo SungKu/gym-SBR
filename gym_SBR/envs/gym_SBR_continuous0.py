@@ -66,18 +66,19 @@ tauD = 0#0.0005
 
 
 class SbrCnt0():#(gym.Env):
+    
     """custom Environment that follows gym interface"""
-    #metadata = {'render.modes': ['human']}
+    metadata = {'render.modes': ['human']}
 
     def __init__(self):
-        # action space: Continuous Do setpoints | range-> -1~1 (applicable variation of DO, need to be checked with the other Envs.
+        #action space: Continuous Do setpoints | range-> -1~1 (applicable variation of DO, need to be checked with the other Envs.
 
-        #self.action_space = spaces.Box(np.array([-1.0]), np.array([1.0]),
-        #                               dtype=np.float32)  # -1~1 으로 DO setpoint change
+        self.action_space = spaces.Box(np.array([-1.0]), np.array([1.0]),
+                                       dtype=np.float32)  # -1~1 으로 DO setpoint change
 
         # state space: Continuous, components | normalized
-        #self.observation_space = spaces.Box(
-        #    low=0.9 * np.ones([14]), high=np.ones([14]), dtype=np.float32)
+        self.observation_space = spaces.Box(
+            low=0.9 * np.ones([14]), high=np.ones([14]), dtype=np.float32)
 
         # SBR parameters
         self.Spar = [0.24, 0.67, 0.08, 0.08, 0.06]  # (ref. BSM1 report Tbl. 2)
