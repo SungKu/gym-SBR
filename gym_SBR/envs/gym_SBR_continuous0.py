@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 # Call: Modules
 from gym_SBR.envs import buffer_tank3 as buffer_tank
 from gym_SBR.envs import SBR_model_continuous as SBR
-from gym_SBR.envs.module_reward_continuous import sbr_reward
+from gym_SBR.envs.module_reward_continuous1 import sbr_reward
 from gym_SBR.envs.module_temperature import DO_set
 from gym_SBR.envs.module_batch_time import batch_time
 from gym_SBR.envs.component_figure import components
