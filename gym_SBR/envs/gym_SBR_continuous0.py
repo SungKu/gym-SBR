@@ -267,6 +267,9 @@ class SbrCnt0(gym.Env):
 
             x_t = np.vstack([x_t,x_out[1:]])
             t_t = t_t+t_instant[1:]
+            
+            reward = sbr_reward(DO_set(15), Kla, done, eff_component)
+
 
             x_in = x_out2[-1]
             state = x_in / self.x_1
