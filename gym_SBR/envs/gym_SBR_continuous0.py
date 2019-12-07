@@ -88,6 +88,7 @@ class SbrCnt0(gym.Env):
         self.DO_control_par = [5.0, 0.00035, 0.02 / 24, 2, 0, 240, 12, 2, 5, 0.005, DO_set(15)]
         self.biomass_setpoint = 2700
         self.Qeff = 0.66
+        self.u_t_t = np.array(np.zeros())
 
 
         self.x_1 = np.array([0.5, 1.32000000e+00, 3.00000000e+01, 3.81606587e+01, 6.94658685e+02, 1.07772100e+02, 1.22613841e+03,
@@ -276,6 +277,8 @@ class SbrCnt0(gym.Env):
             x_in = x_out2[-1]
             x_2 = np.hstack([t_t[-1], x_in])
             state = x_2 / self.x_1
+            
+            self.u_t_t = np.vstack([self.u_t_t, u_t])
 
         return state, reward, done, {}
     
