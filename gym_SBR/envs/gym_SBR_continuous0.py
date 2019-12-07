@@ -241,7 +241,6 @@ class SbrCnt0(gym.Env):
           u_t.append(u)
         else:
           u_t.append(u[0])
-        print(u_t)
 
         x_in = x_out[-1]  # Update the initial value for running the SBR system
 
