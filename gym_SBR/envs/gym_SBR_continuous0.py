@@ -8,6 +8,7 @@ import math
 import matplotlib.pyplot as plt
 
 
+
 # Call: Modules
 from gym_SBR.envs import buffer_tank3 as buffer_tank
 from gym_SBR.envs import SBR_model_continuous as SBR
@@ -88,7 +89,7 @@ class SbrCnt0(gym.Env):
         self.DO_control_par = [5.0, 0.00035, 0.02 / 24, 2, 0, 240, 12, 2, 5, 0.005, DO_set(15)]
         self.biomass_setpoint = 2700
         self.Qeff = 0.66
-        self.u_t_t = np.array(np.zeros())
+        self.u_t_t = np.array(np.zeros([1,466]))
 
 
         self.x_1 = np.array([0.5, 1.32000000e+00, 3.00000000e+01, 3.81606587e+01, 6.94658685e+02, 1.07772100e+02, 1.22613841e+03,
@@ -236,7 +237,11 @@ class SbrCnt0(gym.Env):
         else:
             u = u
 
-        u_t.append(u)
+        if type(u) ==int:
+          u_t.append(u)
+        else:
+          u_t.append(u[0])
+        print(u_t)
 
         x_in = x_out[-1]  # Update the initial value for running the SBR system
 
@@ -277,7 +282,6 @@ class SbrCnt0(gym.Env):
             x_in = x_out2[-1]
             x_2 = np.hstack([t_t[-1], x_in])
             state = x_2 / self.x_1
-            
             self.u_t_t = np.vstack([self.u_t_t, u_t])
 
         return state, reward, done, {}
