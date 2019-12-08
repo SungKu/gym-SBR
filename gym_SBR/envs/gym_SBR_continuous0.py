@@ -61,9 +61,9 @@ DO_control_par = [5.0, 0.00035, 0.02 / 24, 2, 0, 240, 12, 2, 5, 0.005, DO_set(15
 
 # PID tuning
 # | PID parameters: optimized parameters, (hand tuning)
-Kc = 5
-tauI = 3#0.00035
-tauD = 0#0.0005
+Kc = 10
+tauI = 0.5
+tauD =  0.00005
 
 
 class SbrCnt0(gym.Env):
