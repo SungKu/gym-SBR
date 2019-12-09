@@ -89,8 +89,8 @@ class SbrCnt0(gym.Env):
     def __init__(self):
         # action space: Continuous Do setpoints | range-> -1~1 (applicable variation of DO, need to be checked with the other Envs.
 
-        self.action_space = spaces.Box(np.array([-0.1]), np.array([0.1]),
-                                       dtype=np.float32)  # -1~1 으로 DO setpoint change
+        self.action_space = spaces.Box(np.array([-0.05]), np.array([0.05]),
+                                       dtype=np.float32)  # -0.05~0.05 으로 DO setpoint change
 
         # state space: Continuous, components | normalized
         self.observation_space = spaces.Box(
