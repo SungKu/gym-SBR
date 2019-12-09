@@ -42,59 +42,80 @@ t_last = t_cycle
 # | 3: Draw phase
 # | 4: idle phase
 
-""" 
-    Basic phase sequencing:          
+"""
 
-    Phase No./      Feeding     Aeration    Mixing      Discharge/  Type         
-    length(%)                                           Wastage         
-    1 (4.2)         Yes         No          Yes         No          FLL/Rxn (ANX)  0           
-    2 (8.3)         No          No          Yes         No          Rxn (ANX) 1        
-    3 (37.5)        No          Yes         Yes         No          Rxn (AER) 1        
-    4 (31.2)        No          No          Yes         No          Rxn (ANX) 1        
-    5 (2.1)         No          Yes         Yes         No          Rxn (AER) 1        
-    6 (8.3)         No          No          No          No          STL       2  
-    7 (2.1)         No          No          No          Yes         DRW       3  
-    8 (6.3)         No          Yes         No          No          IDL       4   
+    Basic phase sequencing:
+
+
+
+    Phase No./      Feeding     Aeration    Mixing      Discharge/  Type
+
+    length(%)                                           Wastage
+
+    1 (4.2)         Yes         No          Yes         No          FLL/Rxn (ANX)  0  
+
+    2 (8.3)         No          No          Yes         No          Rxn (ANX)
+1        
+    3 (37.5)        No          Yes         Yes         No          Rxn (AER)
+1        
+    4 (31.2)        No          No          Yes         No          Rxn (ANX)
+1        
+    5 (2.1)         No          Yes         Yes         No          Rxn (AER)
+1        
+    6 (8.3)         No          No          No          No          STL
+      2  
+    7 (2.1)         No          No          No          Yes         DRW
+      3  
+    8 (6.3)         No          Yes         No          No          IDL
+
+     4   
     (ref. Pons et al. Tbl. 1) 
-     """
+
+"""
+
 DO_control_par = [5.0, 0.00035, 0.02 / 24, 2, 0, 240, 12, 2, 5, 0.005, DO_set(15)]
 
 # PID tuning
 # | PID parameters: optimized parameters, (hand tuning)
 Kc = 10
 tauI = 0.5
-tauD =  0.00005
+tauD = 0.00005
 
 
 class SbrCnt0(gym.Env):
-    
     """custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
 
     def __init__(self):
-        #action space: Continuous Do setpoints | range-> -1~1 (applicable variation of DO, need to be checked with the other Envs.
+        # action space: Continuous Do setpoints | range-> -1~1 (applicable variation of DO, need to be checked with the other Envs.
 
         self.action_space = spaces.Box(np.array([-0.1]), np.array([0.1]),
                                        dtype=np.float32)  # -1~1 으로 DO setpoint change
 
         # state space: Continuous, components | normalized
         self.observation_space = spaces.Box(
-            low=np.array([0,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9]), high=np.ones([15]), dtype=np.float32)
+            low=np.array([0, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9]), high=np.ones([15]),
+            dtype=np.float32)
 
         # SBR parameters
         self.Spar = [0.24, 0.67, 0.08, 0.08, 0.06]  # (ref. BSM1 report Tbl. 2)
         #       Ya    Yh    fp    ixb   ixp
-        self.Kpar = [4.0, 10.0, 0.2, 0.5, 0.3, 0.8, 0.8, 3.0, 0.1, 0.5, 1.0, 0.05, 0.4, 0.05]  # (ref. BSM1 report Tbl. 3)
+        self.Kpar = [4.0, 10.0, 0.2, 0.5, 0.3, 0.8, 0.8, 3.0, 0.1, 0.5, 1.0, 0.05, 0.4,
+                     0.05]  # (ref. BSM1 report Tbl. 3)
         #      muhath  Ks  Koh  Kno  bh   tag etah   kh   Kx muhata Knh  ba   Koa   Ka
         self.DO_control_par = [5.0, 0.00035, 0.02 / 24, 2, 0, 240, 12, 2, 5, 0.005, DO_set(15)]
         self.biomass_setpoint = 2700
         self.Qeff = 0.66
-        self.u_t_t = np.array(np.zeros([1,466]))
+        self.u_t_t = np.array(np.zeros([1, 466]))
 
-
-        self.x_1 = np.array([0.5, 1.32000000e+00, 3.00000000e+01, 3.81606587e+01, 6.94658685e+02, 1.07772100e+02, 1.22613841e+03,
-                        7.88460027e+01, 2.57616136e+02, 1.01108024e+00, 6.24510635e+00, 1.78877937e+01, 3.95743344e+00,
-                        5.70432163e+00, 5.50185509e+00])
+        """
+         List of variables :
+                    0: time, 2=Ss, 6=Xbh, 7=Xba, 9=So, 10=Sno, 11=Snh
+                    (ref. BSM1 report Tbl. 1)
+        """
+        self.state_idx = [0, 1, 5, 6, 8, 9, 10]
+        self.x_1 = np.array([0.5, 30, 2599., 168., 2., 13., 0.005])
+        self.x_2 = np.zeros([1, len(self.state_idx)])
 
     def reset(self):
 
@@ -105,11 +126,10 @@ class SbrCnt0(gym.Env):
         # | 4. Calculate the DeepRL state
         # | 5. Volume update for running SBR
 
-
         global influent_mixed
 
         # 1. Generate the influent
-        switch, influent_mixed, influent_var = buffer_tank.influent.buffer_tank(np.random.choice(8, 1))
+        switch, influent_mixed, influent_var = buffer_tank.influent.buffer_tank(0)  # np.random.choice(8, 1))
         # Switch : number of generated influent scenarios
         # influent_mixed : Scalar values of state components
         # influent_var : time-varying values of stste components
@@ -123,13 +143,14 @@ class SbrCnt0(gym.Env):
         IV_init = 0.6161484733495801  # m^3, Inoculum Volume
 
         # Initial State
+
         x0_init = [0.6161484733495801, 30, 0.571098000538576, 1440.01157895393,
                    31.254221999137, 2599.2714348941, 168.915006750837, 551.901552960823, 2.16607843793004,
                    13.3791460027604, 0.00562880208518134, 0.35996687629947, 1.86916737961228, 3.790463057094611]
 
         # 3. Reset the time, batch_type
 
-        global t ,u, dcv, ie, e
+        global t, u, dcv, ie, e
 
         t = 0
 
@@ -183,8 +204,6 @@ class SbrCnt0(gym.Env):
 
         influent_mixed[0] = Qin / t_memory1[-1]
 
-
-
         global x_out
 
         # Filling phase
@@ -192,30 +211,31 @@ class SbrCnt0(gym.Env):
         x_t = np.vstack([x_t, x_out[1:]])
         t_range_f = t_range.tolist()
         t_t = t_t + t_range_f[1:]
+        x_out_1 = x_out[-1]
 
-        So = x_t[::10,8].tolist()
-        Kla = Kla*(int(len(So)/len(Kla)))
+        # So = x_t[::10, 8].tolist()
+        Kla = Kla * (int(len(So) / len(Kla)))
 
         t = t_t[-1]
 
-
+        """
+         List of variables :
+                    0: time, 1=Ss, 4=Xbh, 5=Xba, 7=So, 8=Sno, 9=Snh, 10=Snd
+                    (ref. BSM1 report Tbl. 1)
+        """
 
         # 5. Calculate the DeepRL state
-        x_2 = np.zeros([1, len(x0_init)+1])
-        for i in range(len(x0_init)):
+        for i in self.state_idx :
             if i == 0:
-                x_2[0][0] = t_t[-1] #time
-                x_2[0][i+1] = Qin + IV
+                self.x_2[0][0] = t_t[-1]  # time
             else:
-                x_2[0][i+1] = (Qin * influent_mixed[i] + x0_init[i] * IV) / (Qin + IV)
-        state = x_2 / self.x_1
-
-
+                self.x_2[0][self.state_idx.index(i)] = (Qin * influent_mixed[i] + x_out_1[i] * IV) / (Qin + IV)
+        state = self.x_2 / self.x_1
 
         return state
 
     def step(self, action):
-        global t,  u, x_out, So, Kla, kla, dcv, ie, e, t_t, x_t, Qw, eff_component, u_t
+        global t, u, x_out, So, Kla, kla, dcv, ie, e, t_t, x_t, Qw, eff_component, u_t
 
         # Run the SBR system with "CONTINUOUS CONTROL"
         # input: batch_type, t, u, x
@@ -225,10 +245,12 @@ class SbrCnt0(gym.Env):
         # | x: State
         # | influent_mixed
 
-        done = False    # Done will be True when reaction phases were finished(<=> Settling, drawing and idle phases would be started)
+        done = False  # Done will be True when reaction phases were finished(<=> Settling, drawing and idle phases would be started)
 
         # setpoint: previous setpoint + Generated action of DeepRL agent
         u = u + action
+
+        # print("action: {}".format(action))
 
         if u < 0:
             u = 0
@@ -237,30 +259,41 @@ class SbrCnt0(gym.Env):
         else:
             u = u
 
-        if type(u) ==int:
-          u_t.append(u)
+        # print("u : {}".format(u))
+
+        if type(u) == int:
+            u_t.append(u)
         else:
-          u_t.append(u[0])
+            u_t.append(u[0])
 
         x_in = x_out[-1]  # Update the initial value for running the SBR system
 
-        t, x_out= self.run_step(t, u, x_in, influent_mixed, done)
-        reward = sbr_reward(DO_set(15), Kla, done, 0)
+        t, x_out = self.run_step(t, u, x_in, influent_mixed, done)
+        # print("Kla: {}".format(Kla[-1]))
+
+        reward = sbr_reward(x_out[-1], u_t,  done, 0)
+
+        # print("reward: {}".format(reward))
+        # print("So: {}".format(So[-1]))
 
         # Next state
         x_in = x_out[-1]
 
         # Calculate state
-        x_2 = np.hstack([t_t[-1], x_in])
+        for i in self.state_idx :
+            if i == 0:
+                self.x_2[0][0] = t_t[-1]  # time
+            else:
+                self.x_2[0][self.state_idx.index(i)] = x_in[i]
+        state = self.x_2 / self.x_1
 
-        state = x_2 / self.x_1
 
         if t >= t_memory5[-1]:
             done = True
 
             x_out1, t_range1, Qw, PE, SP, EQI, eff_component = self.Sim_Settling_Drawing(x_in, t, t_ratio[5],
-                                                                                             t_ratio[6], t_delta, self.Qeff,
-                                                                                             self.biomass_setpoint)
+                                                                                         t_ratio[6], t_delta, self.Qeff,
+                                                                                         self.biomass_setpoint)
             x_in = x_out1[-1]
             x_out2, t_range2, Kla, So, dcv, ie, e = self.Sim_idle(x_in, t_range1, t_ratio[7], u, Kla, So, dcv, ie,
                                                                   e)
@@ -272,21 +305,25 @@ class SbrCnt0(gym.Env):
             t_end = t_range[-1]
             t_instant = t_range.tolist()
 
-            x_t = np.vstack([x_t,x_out[1:]])
-            t_t = t_t+t_instant[1:]
+            x_t = np.vstack([x_t, x_out[1:]])
+            t_t = t_t + t_instant[1:]
 
-            reward = sbr_reward(DO_set(15), Kla, done, eff_component)
-
+            reward = sbr_reward( x_out[-1], u_t,  done, eff_component)
 
             x_in = x_out2[-1]
-            x_2 = np.hstack([t_t[-1], x_in])
-            state = x_2 / self.x_1
+
+            for i in self.state_idx:
+                if i == 0:
+                    self.x_2[0][0] = t_t[-1]  # time
+                else:
+                    self.x_2[0][self.state_idx.index(i)] = x_in[i]
+            state = self.x_2 / self.x_1
+
             self.u_t_t = np.vstack([self.u_t_t, u_t])
 
         return state, reward, done, {}
-    
-    
-    def run_step(self, t, u, x_in, influent_mixed, done): # steps for rxn phases
+
+    def run_step(self, t, u, x_in, influent_mixed, done):  # steps for rxn phases
         global So, Kla, kla, dcv, ie, e, t_t, x_t, Qw, eff_component
 
         # Call: time range
@@ -299,7 +336,6 @@ class SbrCnt0(gym.Env):
         # | 2. Reaction phase
 
         x_out, t_range, Kla, So, dcv, ie, e = self.Sim_rxn(x_in, t_range, u, Kla, So, dcv, ie, e)
-
 
         # | 2. time
         t = t_range[-1]
@@ -318,7 +354,6 @@ class SbrCnt0(gym.Env):
 
         # | 3. initial value
         # It will be updated in the section of STEP
-
 
         return t, x_out
 
@@ -457,13 +492,12 @@ class SbrCnt0(gym.Env):
 
     def Sim_filling(self, x, t, t_filling, loading, Kla, So, dcv, ie, e):
         t_start = t
-        t_end = t + t_filling*0.5
-        t_range = np.linspace(t_start, t_end, (t_end - t_start)/dt)
-
+        t_end = t + t_filling * 0.5
+        t_range = np.linspace(t_start, t_end, (t_end - t_start) / dt)
 
         # Call: Generate Setpoints via PID controllers from u
         # | Set-point
-        sp = 0 #u # set-points
+        sp = 0  # u # set-points
 
         e.append(sp - So[-1])
 
