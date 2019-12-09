@@ -94,7 +94,7 @@ class SbrCnt0(gym.Env):
 
         # state space: Continuous, components | normalized
         self.observation_space = spaces.Box(
-            low=np.array([0, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9]), high=np.ones([15]),
+            low=np.array([0, 0.9,0.9,0.9,0.9,0.9,0.9]), high=np.ones([7])*1.3,
             dtype=np.float32)
 
         # SBR parameters
